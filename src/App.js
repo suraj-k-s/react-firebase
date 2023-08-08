@@ -1,25 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import { addDoc, collection } from 'firebase/firestore';
+import React, { useState } from 'react';
+import { db } from './config/firebase';
 
-function App() {
+export default function App() {
+  const [value, setValue] = useState('');
+  const collectionRef = collection(db, 'to-do');
+  const data =  {
+    name: value,
+  }
+  
+
+  const saveData = async () => {
+    await addDoc(collectionRef,data)
+    setValue('');
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <table align="center">
+        <tbody>
+          <tr>
+            <td>
+              <input
+                type="text"
+                name="txt_data"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+              />
+            </td>
+            <td>
+              <input type="submit" name="btn_save" onClick={saveData} />
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }
-
-export default App;
