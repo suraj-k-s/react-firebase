@@ -6,16 +6,24 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  updateDoc,
 } from 'firebase/firestore';
 import { db } from './config/firebase';
 
 export default function ToDoList() {
   const [dataList, setDataList] = useState([]);
   const [value, setValue] = useState('');
+  const [editId, setEditId] = useState(null);
 
   const handleDelete = async (itemId) => {
     const itemRef = doc(db, 'to-do', itemId);
     await deleteDoc(itemRef);
+  };
+
+  const handleUpdate = async (itemId, updatedName) => {
+    const itemRef = doc(db, 'to-do', itemId);
+    await updateDoc(itemRef, { name: updatedName });
+    setEditId(null);
   };
 
   const handleInsert = async () => {
@@ -75,8 +83,34 @@ export default function ToDoList() {
               padding: '10px',
             }}
           >
-            <span>{item.name}</span>
-            <button onClick={() => handleDelete(item.id)}>Delete</button>
+            {editId === item.id ? (
+              <>
+                <input
+                  type="text"
+                  value={item.name}
+                  onChange={(e) =>
+                    setDataList((prevData) =>
+                      prevData.map((prevItem) =>
+                        prevItem.id === item.id
+                          ? { ...prevItem, name: e.target.value }
+                          : prevItem
+                      )
+                    )
+                  }
+                />
+                <button onClick={() => handleUpdate(item.id, item.name)}>
+                  Save
+                </button>
+              </>
+            ) : (
+              <>
+                <span>{item.name}</span>
+                <div>
+                  <button onClick={() => setEditId(item.id)}>Edit</button>
+                  <button onClick={() => handleDelete(item.id)}>Delete</button>
+                </div>
+              </>
+            )}
           </li>
         ))}
       </ul>
